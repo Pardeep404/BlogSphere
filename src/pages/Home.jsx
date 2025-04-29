@@ -56,7 +56,8 @@ function Home() {
                 src={post.image || "https://via.placeholder.com/400x200"}
                 alt={post.title}
                 className="h-48 w-full object-cover"
-              />
+              />npm run build
+
               {/* <img
                 src="https://fra.cloud.appwrite.io/v1/storage/buckets/67e8a7dd0024dae2cf4b/files/68071374e51979a6ace8/view?project=67e8a364000f0a7a2947&mode=admin"
                 alt="Featured"
