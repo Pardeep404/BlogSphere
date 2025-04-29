@@ -52,15 +52,17 @@ function Home() {
               transition={{ delay: index * 0.1, duration: 0.4 }}
               className="w-full max-w-sm bg-white dark:bg-zinc-800 border border-zinc-900 rounded-2xl overflow-hidden hover:shadow-lg transition duration-300"
             >
-              <img
-                src={
-                  post.featuredImage
-                    ? appwriteService.getFilePreview(post.featuredImage)
-                    : "https://via.placeholder.com/400x200"
-                }
+               <img
+                src={post.image || "https://via.placeholder.com/400x200"}
                 alt={post.title}
                 className="h-48 w-full object-cover"
               />
+              {/* <img
+                src="https://fra.cloud.appwrite.io/v1/storage/buckets/67e8a7dd0024dae2cf4b/files/68071374e51979a6ace8/view?project=67e8a364000f0a7a2947&mode=admin"
+                alt="Featured"
+                className="w-full h-auto"
+              /> */}
+
               <div className="p-4">
                 <time
                   dateTime={post.date || new Date().toISOString()}

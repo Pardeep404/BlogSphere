@@ -1,49 +1,59 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Input, RTE, Select } from "..";
+import { Button, Input, RTE, Select } from "../index";
 import appwriteService from "../../appwrite/config";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 export default function PostForm({ post }) {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    control,
-    getValues,
-  } = useForm({
-    defaultValues: {
-      title: post?.title || "",
-      slug: post?.$id || "",
-      content: post?.content || "",
-      status: post?.status || "active",
-    },
-  });
+  const { register, handleSubmit, watch, setValue, control, getValues } =
+    useForm({
+      defaultValues: {
+        title: post?.title || "",
+        slug: post?.$id || "",
+        content: post?.content || "",
+        status: post?.status || "active",
+      },
+    });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const userData = useSelector((state) => state.auth.userData);
 
   const submit = async (data) => {
-    const file = data.image?.[0] ? await appwriteService.uploadFile(data.image[0]) : null;
+    setLoading(true);
+    setError(null);
 
-    if (post) {
-      if (file) appwriteService.deleteFile(post.featuredImage);
+    try {
+      const file = data.image?.[0]
+        ? await appwriteService.uploadFile(data.image[0])
+        : null;
 
-      const updatedPost = await appwriteService.updatePost(post.$id, {
-        ...data,
-        featuredImage: file ? file.$id : post.featuredImage,
-      });
+      if (post) {
+        if (file) appwriteService.deleteFile(post.featuredImage);
 
-      if (updatedPost) navigate(`/post/${updatedPost.$id}`);
-    } else {
-      if (file) {
-        data.featuredImage = file.$id;
-        const newPost = await appwriteService.createPost({ ...data, userId: userData.$id });
+        const updatedPost = await appwriteService.updatePost(post.$id, {
+          ...data,
+          featuredImage: file ? file.$id : post.featuredImage,
+        });
 
-        if (newPost) navigate(`/post/${newPost.$id}`);
+        if (updatedPost) navigate(`/post/${updatedPost.$id}`);
+      } else {
+        if (file) {
+          data.featuredImage = file.$id;
+          const newPost = await appwriteService.createPost({
+            ...data,
+            userId: userData.$id,
+          });
+
+          if (newPost) navigate(`/post/${newPost.$id}`);
+        }
       }
+    } catch (err) {
+      setError("Failed to create or update the post. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,7 +79,10 @@ export default function PostForm({ post }) {
   }, [watch, slugTransform, setValue]);
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="flex flex-col md:flex-row gap-6">
+    <form
+      onSubmit={handleSubmit(submit)}
+      className="flex flex-col md:flex-row gap-6"
+    >
       {/* Left Section - Title, Slug, Content */}
       <div className="md:w-2/3 w-full">
         <Input
@@ -84,7 +97,9 @@ export default function PostForm({ post }) {
           className="mb-4 w-full px-4 py-2 rounded-md bg-zinc-700 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-zinc-700"
           {...register("slug", { required: true })}
           onInput={(e) =>
-            setValue("slug", slugTransform(e.currentTarget.value), { shouldValidate: true })
+            setValue("slug", slugTransform(e.currentTarget.value), {
+              shouldValidate: true,
+            })
           }
         />
         <RTE
@@ -122,12 +137,17 @@ export default function PostForm({ post }) {
           {...register("status", { required: true })}
         />
 
+        {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+
         <Button
           type="submit"
-          bgColor={"text-white bg-black hover:text-black hover:bg-white hover:border-black"}
+          bgColor={
+            "text-white bg-black hover:text-black hover:bg-white hover:border-black"
+          }
           className="w-full text-white"
+          disabled={loading}
         >
-          {post ? "Update Post" : "Create Post"}
+          {loading ? "Saving..." : post ? "Update Post" : "Create Post"}
         </Button>
       </div>
     </form>
