@@ -126,14 +126,14 @@ export class Service {
     }
   }
 
-  getFilePreview(fileId) {
+  getFileView(fileId) {
     try {
-      return this.bucket.getFilePreview(conf.appwriteBucketId, fileId).toString();
+      return this.bucket.getFileView(conf.appwriteBucketId, fileId).toString();
     } catch {
       return "default-preview.png";
     }
   }
-  
+
 }
 
 const service = new Service();

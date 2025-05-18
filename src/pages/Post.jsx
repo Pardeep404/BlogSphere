@@ -40,9 +40,9 @@ export default function Post() {
         <div className="w-full mb-6 rounded-2xl border border-zinc-200 shadow-md overflow-hidden">
           {post.featuredImage ? (
             <img
-              src={appwriteService.getFilePreview(post.featuredImage)}
+              src={appwriteService.getFileView(post.featuredImage)}
               alt={post.title}
-              className="w-full max-h-[500px] object-cover"
+              className="w-full  object-cover"
             />
           ) : (
             <div className="w-full h-[300px] flex items-center justify-center bg-zinc-100 text-zinc-500 text-xl font-semibold">
